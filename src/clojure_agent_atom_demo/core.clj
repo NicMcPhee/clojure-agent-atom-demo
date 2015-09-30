@@ -2,23 +2,18 @@
   (:gen-class))
 
 (defn count-word
-  [_ word word-list]
+  [word word-list]
   (count (filter (partial = word) word-list)))
 
 (defn make-count-map
   [word-set word-list]
-  (let [count-map (into {}
-                        (for [w word-set]
-                          [w (agent nil)]))]
-    (doseq [w word-set]
-      (send (count-map w) count-word w word-list))
-    count-map))
+  (into {}
+        (for [w word-set]
+          [w (count-word w word-list)])))
 
 (defn get-count
   [word count-map]
-  (when-not (deref (count-map word))
-    (await (count-map word)))
-  (deref (count-map word)))
+  (count-map word))
 
 (defn -main
   "Demonstrate counting the occurrences of unique words in a text"
